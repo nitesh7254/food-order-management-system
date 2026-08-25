@@ -1,0 +1,68 @@
+# ==========================================
+# Maven
+# ==========================================
+
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+
+# ==========================================
+# Spring Boot / Eclipse / STS
+# ==========================================
+
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+
+# ==========================================
+# IntelliJ IDEA
+# ==========================================
+
+.idea/
+*.iws
+*.iml
+*.ipr
+
+
+# ==========================================
+# NetBeans
+# ==========================================
+
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+
+# ==========================================
+# Gradle / Build
+# ==========================================
+
+build/
+
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+
+# ==========================================
+# Visual Studio Code
+# ==========================================
+
+.vscode/
+
+
+# ==========================================
+# Local Application Configuration
+# ==========================================
+
+# Contains local PostgreSQL credentials
+src/main/resources/application.properties
