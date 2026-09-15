@@ -4,85 +4,202 @@ const API_BASE_URL = "http://localhost:8080";
  * =========================================================
  * COMMON API REQUEST FUNCTION
  * =========================================================
+ *
+ * This function is used by all API calls.
+ *
+ * Responsibilities:
+ * 1. Build the backend URL
+ * 2. Add common headers
+ * 3. Read JWT from localStorage
+ * 4. Send JWT using Authorization header
+ * 5. Handle JSON responses
+ * 6. Handle HTTP errors
+ * 7. Handle backend/network errors
+ *
  */
 
 async function request(endpoint, options = {}) {
-  const config = {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...(options.headers || {}),
-    },
-  };
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+    // =====================================================
+    // GET JWT TOKEN
+    // =====================================================
 
-    /**
-     * 204 No Content
-     */
-    if (response.status === 204) {
-      return null;
+    const token = localStorage.getItem("token");
+
+    // =====================================================
+    // BUILD REQUEST CONFIGURATION
+    // =====================================================
+
+    const config = {
+
+        ...options,
+
+        headers: {
+
+            "Content-Type": "application/json",
+
+            Accept: "application/json",
+
+            ...(options.headers || {}),
+
+        },
+
+    };
+
+    // =====================================================
+    // ADD JWT AUTHORIZATION HEADER
+    // =====================================================
+
+    if (token) {
+
+        config.headers.Authorization = `Bearer ${token}`;
+
     }
 
-    const contentType =
-      response.headers.get("content-type") || "";
+    try {
 
-    const isJson = contentType.includes("application/json");
+        // =================================================
+        // SEND REQUEST
+        // =================================================
 
-    let data = null;
+        const response = await fetch(
+            `${API_BASE_URL}${endpoint}`,
+            config
+        );
 
-    if (isJson) {
-      try {
-        data = await response.json();
-      } catch {
-        data = null;
-      }
-    } else {
-      try {
-        data = await response.text();
-      } catch {
-        data = null;
-      }
+        // =================================================
+        // 204 NO CONTENT
+        // =================================================
+
+        if (response.status === 204) {
+
+            return null;
+
+        }
+
+        // =================================================
+        // CHECK RESPONSE CONTENT TYPE
+        // =================================================
+
+        const contentType =
+            response.headers.get("content-type") || "";
+
+        const isJson =
+            contentType.includes("application/json");
+
+        let data = null;
+
+        // =================================================
+        // READ RESPONSE DATA
+        // =================================================
+
+        if (isJson) {
+
+            try {
+
+                data = await response.json();
+
+            } catch {
+
+                data = null;
+
+            }
+
+        } else {
+
+            try {
+
+                data = await response.text();
+
+            } catch {
+
+                data = null;
+
+            }
+
+        }
+
+        // =================================================
+        // HANDLE HTTP ERRORS
+        // =================================================
+
+        if (!response.ok) {
+
+            let message =
+                `Request failed with status ${response.status}`;
+
+            if (
+                data &&
+                typeof data === "object"
+            ) {
+
+                message =
+                    data.message ||
+                    data.error ||
+                    data.detail ||
+                    message;
+
+            } else if (
+                typeof data === "string" &&
+                data.trim()
+            ) {
+
+                message = data;
+
+            }
+
+            // =============================================
+            // UNAUTHORIZED
+            // =============================================
+
+            if (response.status === 401) {
+
+                message =
+                    "Session expired or authentication is required.";
+
+            }
+
+            // =============================================
+            // FORBIDDEN
+            // =============================================
+
+            if (response.status === 403) {
+
+                message =
+                    "You do not have permission to perform this action.";
+
+            }
+
+            throw new Error(message);
+
+        }
+
+        // =================================================
+        // RETURN SUCCESS RESPONSE
+        // =================================================
+
+        return data;
+
+    } catch (error) {
+
+        // =================================================
+        // NETWORK / BACKEND CONNECTION ERROR
+        // =================================================
+
+        if (error instanceof TypeError) {
+
+            throw new Error(
+                "Unable to connect to backend. Make sure Spring Boot is running on port 8080."
+            );
+
+        }
+
+        throw error;
+
     }
 
-    /**
-     * Handle HTTP errors
-     */
-    if (!response.ok) {
-      let message = `Request failed with status ${response.status}`;
-
-      if (data && typeof data === "object") {
-        message =
-          data.message ||
-          data.error ||
-          data.detail ||
-          message;
-      } else if (
-        typeof data === "string" &&
-        data.trim()
-      ) {
-        message = data;
-      }
-
-      throw new Error(message);
-    }
-
-    return data;
-  } catch (error) {
-    /**
-     * Network / backend connection error
-     */
-    if (error instanceof TypeError) {
-      throw new Error(
-        "Unable to connect to backend. Make sure Spring Boot is running on port 8080."
-      );
-    }
-
-    throw error;
-  }
 }
+
 
 /**
  * =========================================================
@@ -91,44 +208,55 @@ async function request(endpoint, options = {}) {
  */
 
 export const customerApi = {
-  /**
-   * GET /api/customers
-   */
-  getAll: () =>
-    request("/api/customers"),
 
-  /**
-   * GET /api/customers/{id}
-   */
-  getById: (id) =>
-    request(`/api/customers/${id}`),
+    /**
+     * GET /api/customers
+     */
+    getAll: () =>
+        request("/api/customers"),
 
-  /**
-   * POST /api/customers
-   */
-  create: (customer) =>
-    request("/api/customers", {
-      method: "POST",
-      body: JSON.stringify(customer),
-    }),
+    /**
+     * GET /api/customers/{id}
+     */
+    getById: (id) =>
+        request(`/api/customers/${id}`),
 
-  /**
-   * PUT /api/customers/{id}
-   */
-  update: (id, customer) =>
-    request(`/api/customers/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(customer),
-    }),
+    /**
+     * POST /api/customers
+     */
+    create: (customer) =>
+        request("/api/customers", {
 
-  /**
-   * DELETE /api/customers/{id}
-   */
-  delete: (id) =>
-    request(`/api/customers/${id}`, {
-      method: "DELETE",
-    }),
+            method: "POST",
+
+            body: JSON.stringify(customer),
+
+        }),
+
+    /**
+     * PUT /api/customers/{id}
+     */
+    update: (id, customer) =>
+        request(`/api/customers/${id}`, {
+
+            method: "PUT",
+
+            body: JSON.stringify(customer),
+
+        }),
+
+    /**
+     * DELETE /api/customers/{id}
+     */
+    delete: (id) =>
+        request(`/api/customers/${id}`, {
+
+            method: "DELETE",
+
+        }),
+
 };
+
 
 /**
  * =========================================================
@@ -137,44 +265,55 @@ export const customerApi = {
  */
 
 export const foodItemApi = {
-  /**
-   * GET /api/food-items
-   */
-  getAll: () =>
-    request("/api/food-items"),
 
-  /**
-   * GET /api/food-items/{id}
-   */
-  getById: (id) =>
-    request(`/api/food-items/${id}`),
+    /**
+     * GET /api/food-items
+     */
+    getAll: () =>
+        request("/api/food-items"),
 
-  /**
-   * POST /api/food-items
-   */
-  create: (foodItem) =>
-    request("/api/food-items", {
-      method: "POST",
-      body: JSON.stringify(foodItem),
-    }),
+    /**
+     * GET /api/food-items/{id}
+     */
+    getById: (id) =>
+        request(`/api/food-items/${id}`),
 
-  /**
-   * PUT /api/food-items/{id}
-   */
-  update: (id, foodItem) =>
-    request(`/api/food-items/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(foodItem),
-    }),
+    /**
+     * POST /api/food-items
+     */
+    create: (foodItem) =>
+        request("/api/food-items", {
 
-  /**
-   * DELETE /api/food-items/{id}
-   */
-  delete: (id) =>
-    request(`/api/food-items/${id}`, {
-      method: "DELETE",
-    }),
+            method: "POST",
+
+            body: JSON.stringify(foodItem),
+
+        }),
+
+    /**
+     * PUT /api/food-items/{id}
+     */
+    update: (id, foodItem) =>
+        request(`/api/food-items/${id}`, {
+
+            method: "PUT",
+
+            body: JSON.stringify(foodItem),
+
+        }),
+
+    /**
+     * DELETE /api/food-items/{id}
+     */
+    delete: (id) =>
+        request(`/api/food-items/${id}`, {
+
+            method: "DELETE",
+
+        }),
+
 };
+
 
 /**
  * =========================================================
@@ -183,52 +322,63 @@ export const foodItemApi = {
  */
 
 export const orderApi = {
-  /**
-   * GET /api/orders
-   */
-  getAll: () =>
-    request("/api/orders"),
 
-  /**
-   * GET /api/orders/{id}
-   */
-  getById: (id) =>
-    request(`/api/orders/${id}`),
+    /**
+     * GET /api/orders
+     */
+    getAll: () =>
+        request("/api/orders"),
 
-  /**
-   * GET /api/orders/customer/{customerId}
-   */
-  getByCustomer: (customerId) =>
-    request(`/api/orders/customer/${customerId}`),
+    /**
+     * GET /api/orders/{id}
+     */
+    getById: (id) =>
+        request(`/api/orders/${id}`),
 
-  /**
-   * POST /api/orders
-   */
-  create: (order) =>
-    request("/api/orders", {
-      method: "POST",
-      body: JSON.stringify(order),
-    }),
+    /**
+     * GET /api/orders/customer/{customerId}
+     */
+    getByCustomer: (customerId) =>
+        request(`/api/orders/customer/${customerId}`),
 
-  /**
-   * PUT /api/orders/{id}/status
-   */
-  updateStatus: (id, status) =>
-    request(`/api/orders/${id}/status`, {
-      method: "PUT",
-      body: JSON.stringify({
-        status,
-      }),
-    }),
+    /**
+     * POST /api/orders
+     */
+    create: (order) =>
+        request("/api/orders", {
 
-  /**
-   * DELETE /api/orders/{id}
-   */
-  delete: (id) =>
-    request(`/api/orders/${id}`, {
-      method: "DELETE",
-    }),
+            method: "POST",
+
+            body: JSON.stringify(order),
+
+        }),
+
+    /**
+     * PUT /api/orders/{id}/status
+     */
+    updateStatus: (id, status) =>
+        request(`/api/orders/${id}/status`, {
+
+            method: "PUT",
+
+            body: JSON.stringify({
+                status,
+            }),
+
+        }),
+
+    /**
+     * DELETE /api/orders/{id}
+     */
+    delete: (id) =>
+        request(`/api/orders/${id}`, {
+
+            method: "DELETE",
+
+        }),
+
 };
+
 
 /**
  * =========================================================
@@ -239,19 +389,20 @@ export const orderApi = {
  */
 
 export const getCustomers = () =>
-  customerApi.getAll();
+    customerApi.getAll();
 
 export const getCustomerById = (id) =>
-  customerApi.getById(id);
+    customerApi.getById(id);
 
 export const createCustomer = (customer) =>
-  customerApi.create(customer);
+    customerApi.create(customer);
 
 export const updateCustomer = (id, customer) =>
-  customerApi.update(id, customer);
+    customerApi.update(id, customer);
 
 export const deleteCustomer = (id) =>
-  customerApi.delete(id);
+    customerApi.delete(id);
+
 
 /**
  * =========================================================
@@ -262,19 +413,20 @@ export const deleteCustomer = (id) =>
  */
 
 export const getFoodItems = () =>
-  foodItemApi.getAll();
+    foodItemApi.getAll();
 
 export const getFoodItemById = (id) =>
-  foodItemApi.getById(id);
+    foodItemApi.getById(id);
 
 export const createFoodItem = (foodItem) =>
-  foodItemApi.create(foodItem);
+    foodItemApi.create(foodItem);
 
 export const updateFoodItem = (id, foodItem) =>
-  foodItemApi.update(id, foodItem);
+    foodItemApi.update(id, foodItem);
 
 export const deleteFoodItem = (id) =>
-  foodItemApi.delete(id);
+    foodItemApi.delete(id);
+
 
 /**
  * =========================================================
@@ -285,22 +437,23 @@ export const deleteFoodItem = (id) =>
  */
 
 export const getOrders = () =>
-  orderApi.getAll();
+    orderApi.getAll();
 
 export const getOrderById = (id) =>
-  orderApi.getById(id);
+    orderApi.getById(id);
 
 export const getOrdersByCustomer = (customerId) =>
-  orderApi.getByCustomer(customerId);
+    orderApi.getByCustomer(customerId);
 
 export const createOrder = (order) =>
-  orderApi.create(order);
+    orderApi.create(order);
 
 export const updateOrderStatus = (id, status) =>
-  orderApi.updateStatus(id, status);
+    orderApi.updateStatus(id, status);
 
 export const deleteOrder = (id) =>
-  orderApi.delete(id);
+    orderApi.delete(id);
+
 
 /**
  * =========================================================
@@ -309,29 +462,33 @@ export const deleteOrder = (id) =>
  */
 
 export default {
-  customerApi,
-  foodItemApi,
-  orderApi,
 
-  // Customers
-  getCustomers,
-  getCustomerById,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
+    customerApi,
 
-  // Food Items
-  getFoodItems,
-  getFoodItemById,
-  createFoodItem,
-  updateFoodItem,
-  deleteFoodItem,
+    foodItemApi,
 
-  // Orders
-  getOrders,
-  getOrderById,
-  getOrdersByCustomer,
-  createOrder,
-  updateOrderStatus,
-  deleteOrder,
+    orderApi,
+
+    // Customers
+    getCustomers,
+    getCustomerById,
+    createCustomer,
+    updateCustomer,
+    deleteCustomer,
+
+    // Food Items
+    getFoodItems,
+    getFoodItemById,
+    createFoodItem,
+    updateFoodItem,
+    deleteFoodItem,
+
+    // Orders
+    getOrders,
+    getOrderById,
+    getOrdersByCustomer,
+    createOrder,
+    updateOrderStatus,
+    deleteOrder,
+
 };
