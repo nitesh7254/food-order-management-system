@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- ===================== SPRING BOOT ===================== -->
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -12,58 +16,158 @@
         <relativePath/>
     </parent>
 
+
+    <!-- ===================== PROJECT INFORMATION ===================== -->
+
     <groupId>com.foodorder</groupId>
+
     <artifactId>food-order-management</artifactId>
+
     <version>0.0.1-SNAPSHOT</version>
 
     <name>food-order-management</name>
-    <description>Food Order Management System using Spring Boot and PostgreSQL</description>
+
+    <description>
+        Food Order Management System using Spring Boot, PostgreSQL,
+        REST APIs, JWT Authentication and React
+    </description>
+
+
+    <!-- ===================== JAVA VERSION ===================== -->
 
     <properties>
         <java.version>17</java.version>
     </properties>
 
+
+    <!-- ===================== DEPENDENCIES ===================== -->
+
     <dependencies>
 
-        <!-- Spring Boot Web -->
+
+        <!-- ================================================= -->
+        <!-- SPRING BOOT WEB -->
+        <!-- ================================================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
-        <!-- Spring Data JPA -->
+
+        <!-- ================================================= -->
+        <!-- SPRING DATA JPA -->
+        <!-- ================================================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- PostgreSQL Database -->
+
+        <!-- ================================================= -->
+        <!-- POSTGRESQL DATABASE -->
+        <!-- ================================================= -->
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Lombok -->
+
+        <!-- ================================================= -->
+        <!-- VALIDATION -->
+        <!-- ================================================= -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+
+        <!-- ================================================= -->
+        <!-- SPRING SECURITY -->
+        <!-- ================================================= -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+
+        <!-- ================================================= -->
+        <!-- SPRING SECURITY CRYPTO -->
+        <!-- BCrypt Password Encryption -->
+        <!-- ================================================= -->
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
+
+        <!-- ================================================= -->
+        <!-- JWT - JSON WEB TOKEN -->
+        <!-- ================================================= -->
+
+        <!-- JWT API -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+
+
+        <!-- JWT Implementation -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- JWT Jackson Integration -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!-- ================================================= -->
+        <!-- LOMBOK -->
+        <!-- ================================================= -->
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+<!-- Swagger / OpenAPI Documentation -->
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>3.1.1</version>
+</dependency>
 
-        <!-- Spring Boot DevTools -->
+        <!-- ================================================= -->
+        <!-- SPRING BOOT DEVTOOLS -->
+        <!-- ================================================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        
-        <!-- Validation -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>
+
+
+        <!-- ================================================= -->
+        <!-- TESTING -->
+        <!-- ================================================= -->
 
         <!-- JPA Test -->
         <dependency>
@@ -72,6 +176,7 @@
             <scope>test</scope>
         </dependency>
 
+
         <!-- Web Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -79,42 +184,84 @@
             <scope>test</scope>
         </dependency>
 
+
+        <!-- Spring Security Test -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
+
+    <!-- ===================== BUILD ===================== -->
+
     <build>
+
         <plugins>
 
-            <!-- Spring Boot Maven Plugin -->
+
+            <!-- ================================================= -->
+            <!-- SPRING BOOT MAVEN PLUGIN -->
+            <!-- ================================================= -->
+
             <plugin>
+
                 <groupId>org.springframework.boot</groupId>
+
                 <artifactId>spring-boot-maven-plugin</artifactId>
 
                 <configuration>
+
                     <excludes>
+
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
 
-            <!-- Maven Compiler Plugin -->
+                    </excludes>
+
+                </configuration>
+
+            </plugin>
+            
+
+
+            <!-- ================================================= -->
+            <!-- MAVEN COMPILER PLUGIN -->
+            <!-- ================================================= -->
+
             <plugin>
+
                 <groupId>org.apache.maven.plugins</groupId>
+
                 <artifactId>maven-compiler-plugin</artifactId>
 
                 <configuration>
+
                     <annotationProcessorPaths>
+
                         <path>
+
                             <groupId>org.projectlombok</groupId>
+
                             <artifactId>lombok</artifactId>
+
                         </path>
+
                     </annotationProcessorPaths>
+
                 </configuration>
+
             </plugin>
 
+
         </plugins>
+
     </build>
+
 
 </project>
