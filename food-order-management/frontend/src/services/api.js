@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 /**
  * =========================================================
@@ -31,19 +32,13 @@ async function request(endpoint, options = {}) {
     // =====================================================
 
     const config = {
-
         ...options,
 
         headers: {
-
             "Content-Type": "application/json",
-
             Accept: "application/json",
-
             ...(options.headers || {}),
-
         },
-
     };
 
     // =====================================================
@@ -51,9 +46,7 @@ async function request(endpoint, options = {}) {
     // =====================================================
 
     if (token) {
-
         config.headers.Authorization = `Bearer ${token}`;
-
     }
 
     try {
@@ -72,9 +65,7 @@ async function request(endpoint, options = {}) {
         // =================================================
 
         if (response.status === 204) {
-
             return null;
-
         }
 
         // =================================================
@@ -94,29 +85,17 @@ async function request(endpoint, options = {}) {
         // =================================================
 
         if (isJson) {
-
             try {
-
                 data = await response.json();
-
             } catch {
-
                 data = null;
-
             }
-
         } else {
-
             try {
-
                 data = await response.text();
-
             } catch {
-
                 data = null;
-
             }
-
         }
 
         // =================================================
@@ -132,7 +111,6 @@ async function request(endpoint, options = {}) {
                 data &&
                 typeof data === "object"
             ) {
-
                 message =
                     data.message ||
                     data.error ||
@@ -143,9 +121,7 @@ async function request(endpoint, options = {}) {
                 typeof data === "string" &&
                 data.trim()
             ) {
-
                 message = data;
-
             }
 
             // =============================================
@@ -153,10 +129,8 @@ async function request(endpoint, options = {}) {
             // =============================================
 
             if (response.status === 401) {
-
                 message =
                     "Session expired or authentication is required.";
-
             }
 
             // =============================================
@@ -164,14 +138,11 @@ async function request(endpoint, options = {}) {
             // =============================================
 
             if (response.status === 403) {
-
                 message =
                     "You do not have permission to perform this action.";
-
             }
 
             throw new Error(message);
-
         }
 
         // =================================================
@@ -187,17 +158,13 @@ async function request(endpoint, options = {}) {
         // =================================================
 
         if (error instanceof TypeError) {
-
             throw new Error(
                 "Unable to connect to backend. Make sure Spring Boot is running on port 8080."
             );
-
         }
 
         throw error;
-
     }
-
 }
 
 
@@ -226,11 +193,8 @@ export const customerApi = {
      */
     create: (customer) =>
         request("/api/customers", {
-
             method: "POST",
-
             body: JSON.stringify(customer),
-
         }),
 
     /**
@@ -238,11 +202,8 @@ export const customerApi = {
      */
     update: (id, customer) =>
         request(`/api/customers/${id}`, {
-
             method: "PUT",
-
             body: JSON.stringify(customer),
-
         }),
 
     /**
@@ -250,11 +211,8 @@ export const customerApi = {
      */
     delete: (id) =>
         request(`/api/customers/${id}`, {
-
             method: "DELETE",
-
         }),
-
 };
 
 
@@ -283,11 +241,8 @@ export const foodItemApi = {
      */
     create: (foodItem) =>
         request("/api/food-items", {
-
             method: "POST",
-
             body: JSON.stringify(foodItem),
-
         }),
 
     /**
@@ -295,11 +250,8 @@ export const foodItemApi = {
      */
     update: (id, foodItem) =>
         request(`/api/food-items/${id}`, {
-
             method: "PUT",
-
             body: JSON.stringify(foodItem),
-
         }),
 
     /**
@@ -307,11 +259,8 @@ export const foodItemApi = {
      */
     delete: (id) =>
         request(`/api/food-items/${id}`, {
-
             method: "DELETE",
-
         }),
-
 };
 
 
@@ -346,11 +295,8 @@ export const orderApi = {
      */
     create: (order) =>
         request("/api/orders", {
-
             method: "POST",
-
             body: JSON.stringify(order),
-
         }),
 
     /**
@@ -358,13 +304,10 @@ export const orderApi = {
      */
     updateStatus: (id, status) =>
         request(`/api/orders/${id}/status`, {
-
             method: "PUT",
-
             body: JSON.stringify({
                 status,
             }),
-
         }),
 
     /**
@@ -372,11 +315,8 @@ export const orderApi = {
      */
     delete: (id) =>
         request(`/api/orders/${id}`, {
-
             method: "DELETE",
-
         }),
-
 };
 
 
@@ -464,9 +404,7 @@ export const deleteOrder = (id) =>
 export default {
 
     customerApi,
-
     foodItemApi,
-
     orderApi,
 
     // Customers
@@ -490,5 +428,4 @@ export default {
     createOrder,
     updateOrderStatus,
     deleteOrder,
-
 };
