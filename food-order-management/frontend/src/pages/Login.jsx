@@ -2,34 +2,53 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
+
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+
     async function handleSubmit(event) {
+
         event.preventDefault();
 
         setError("");
 
-        // Basic validation
+
+        // =========================
+        // BASIC VALIDATION
+        // =========================
+
         if (!email.trim() || !password) {
+
             setError("Please enter email and password.");
+
             return;
         }
 
+
         try {
+
             setLoading(true);
+
+
+            // =========================
+            // LOGIN API
+            // =========================
 
             const response = await fetch(
                 "http://localhost:8080/api/auth/login",
                 {
                     method: "POST",
+
                     headers: {
                         "Content-Type": "application/json",
                     },
+
                     body: JSON.stringify({
                         email: email.trim(),
                         password: password,
@@ -37,19 +56,45 @@ function Login() {
                 }
             );
 
+
+            // =========================
+            // LOGIN FAILED
+            // =========================
+
             if (!response.ok) {
-                throw new Error("Invalid email or password.");
+
+                throw new Error(
+                    "Invalid email or password."
+                );
             }
 
+
+            // =========================
+            // LOGIN RESPONSE
+            // =========================
+
             const data = await response.json();
+
 
             // =========================
             // SAVE LOGIN INFORMATION
             // =========================
 
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("userEmail", data.email);
-            localStorage.setItem("userRole", data.role);
+            localStorage.setItem(
+                "token",
+                data.token
+            );
+
+            localStorage.setItem(
+                "userEmail",
+                data.email
+            );
+
+            localStorage.setItem(
+                "userRole",
+                data.role
+            );
+
 
             // =========================
             // REDIRECT TO DASHBOARD
@@ -58,18 +103,27 @@ function Login() {
             navigate("/dashboard");
 
         } catch (err) {
+
             setError(
-                err.message || "Login failed. Please try again."
+                err.message ||
+                "Login failed. Please try again."
             );
+
         } finally {
+
             setLoading(false);
+
         }
+
     }
 
+
     return (
-        <div className="flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-8">
+
+        <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
 
             <div className="w-full max-w-md">
+
 
                 {/* =========================
                     LOGIN HEADER
@@ -78,18 +132,27 @@ function Login() {
                 <div className="mb-8 text-center">
 
                     <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-3xl shadow-lg">
+
                         🍔
+
                     </div>
 
+
                     <h1 className="text-3xl font-bold text-slate-900">
+
                         Food Order Management
+
                     </h1>
 
+
                     <p className="mt-2 text-sm text-slate-500">
+
                         Sign in to your account
+
                     </p>
 
                 </div>
+
 
                 {/* =========================
                     LOGIN CARD
@@ -100,24 +163,35 @@ function Login() {
                     <div className="mb-7">
 
                         <h2 className="text-xl font-semibold text-slate-900">
+
                             Welcome back
+
                         </h2>
 
+
                         <p className="mt-1 text-sm text-slate-500">
+
                             Enter your credentials to continue.
+
                         </p>
 
                     </div>
+
 
                     {/* =========================
                         ERROR MESSAGE
                     ========================== */}
 
                     {error && (
+
                         <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+
                             {error}
+
                         </div>
+
                     )}
+
 
                     {/* =========================
                         LOGIN FORM
@@ -128,6 +202,7 @@ function Login() {
                         className="space-y-5"
                     >
 
+
                         {/* EMAIL */}
 
                         <div>
@@ -136,8 +211,11 @@ function Login() {
                                 htmlFor="email"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
+
                                 Email
+
                             </label>
+
 
                             <input
                                 id="email"
@@ -154,6 +232,7 @@ function Login() {
 
                         </div>
 
+
                         {/* PASSWORD */}
 
                         <div>
@@ -162,8 +241,11 @@ function Login() {
                                 htmlFor="password"
                                 className="mb-2 block text-sm font-medium text-slate-700"
                             >
+
                                 Password
+
                             </label>
+
 
                             <input
                                 id="password"
@@ -180,6 +262,7 @@ function Login() {
 
                         </div>
 
+
                         {/* SIGN IN BUTTON */}
 
                         <button
@@ -189,12 +272,20 @@ function Login() {
                         >
 
                             {loading ? (
+
                                 <span className="flex items-center justify-center gap-2">
-                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+
+                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent">
+                                    </span>
+
                                     Signing in...
+
                                 </span>
+
                             ) : (
+
                                 "Sign In"
+
                             )}
 
                         </button>
@@ -203,18 +294,23 @@ function Login() {
 
                 </div>
 
+
                 {/* =========================
                     FOOTER TEXT
                 ========================== */}
 
                 <p className="mt-6 text-center text-xs text-slate-400">
+
                     Food Order Management System
+
                 </p>
 
             </div>
 
         </div>
+
     );
+
 }
 
 export default Login;
